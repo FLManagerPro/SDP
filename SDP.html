@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Training Analytics - Red & Black Edition</title>
+    <!-- Tailwind CSS for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --dark-bg: #111827;
+            --card-bg: #1f2937;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--primary-red);
+            transition: transform 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        input, select, textarea {
+            background-color: #374151 !important;
+            border: 1px solid #4b5563 !important;
+            color: white !important;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-red) !important;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+        }
+
+        .btn-red {
+            background-color: var(--primary-red);
+            transition: all 0.3s ease;
+        }
+
+        .btn-red:hover {
+            background-color: #b91c1c;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-red);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-gray-700 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-white uppercase tracking-wider">
+                    <span class="text-red-600">HR</span> Training Dashboard
+                </h1>
+                <p class="text-gray-400 mt-1">Sistem Pemantauan & Input Data Peserta Pelatihan</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-sm text-gray-500 italic">
+                Terakhir Diperbarui: <span id="last-update">-</span>
+            </div>
+        </header>
+
+        <!-- KPI Cards Grid (Hanya 2 Kolom Sekarang) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="kpi-card p-6 rounded-lg shadow-xl">
+                <p class="text-gray-400 text-sm font-medium uppercase">Total Peserta Terdaftar</p>
+                <h2 id="display-peserta" class="text-4xl font-bold mt-2">0</h2>
+                <p class="text-xs text-gray-500 mt-2 italic">Data dari tabel peserta saat ini</p>
+            </div>
+
+            <div class="kpi-card p-6 rounded-lg shadow-xl">
+                <p class="text-gray-400 text-sm font-medium uppercase">Completion Rate</p>
+                <h2 id="display-rate" class="text-4xl font-bold mt-2 text-red-500">0%</h2>
+                <div class="w-full bg-gray-700 h-1.5 mt-4 rounded-full overflow-hidden">
+                    <div id="progress-rate" class="bg-red-600 h-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Form Input Peserta -->
+            <div class="lg:col-span-1 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-2xl h-fit">
+                <h3 class="text-lg font-bold mb-6 flex items-center">
+                    <span class="w-2 h-6 bg-red-600 mr-3"></span>
+                    Input Data Peserta
+                </h3>
+                
+                <form id="participant-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Username</label>
+                        <input type="text" id="p-username" placeholder="Cth: user123" class="w-full p-2.5 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Nama Lengkap</label>
+                        <input type="text" id="p-nama" placeholder="Cth: Budi Santoso" class="w-full p-2.5 rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 uppercase mb-1">Keterangan</label>
+                        <textarea id="p-ket" placeholder="Cth: Lulus / Remedial" class="w-full p-2.5 rounded-lg text-sm h-20"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4 pt-2 border-t border-gray-700">
+                        <div>
+                            <label class="block text-xs text-gray-400 uppercase mb-1">ABM/Spv/Mentor</label>
+                            <input type="text" id="p-mentor" placeholder="Nama Mentor" class="w-full p-2.5 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 uppercase mb-1">Branch Manager (BM)</label>
+                            <input type="text" id="p-bm" placeholder="Nama BM" class="w-full p-2.5 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 uppercase mb-1">Regional Manager (RM)</label>
+                            <input type="text" id="p-rm" placeholder="Nama RM" class="w-full p-2.5 rounded-lg text-sm">
+                        </div>
+                    </div>
+                    
+                    <button type="button" onclick="addParticipant()" class="btn-red w-full py-3 rounded-lg font-bold text-white uppercase text-sm tracking-widest mt-4">
+                        Tambah Peserta
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tabel Data Peserta -->
+            <div class="lg:col-span-3 bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold">Daftar Peserta Pelatihan</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="clearTable()" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-gray-300 transition">Hapus Semua</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-gray-500 border-b border-gray-700 text-[10px] uppercase tracking-wider">
+                                <th class="pb-3 px-2">No</th>
+                                <th class="pb-3 px-2">Username</th>
+                                <th class="pb-3 px-2">Nama</th>
+                                <th class="pb-3 px-2">Keterangan</th>
+                                <th class="pb-3 px-2">ABM/Spv/Mentor</th>
+                                <th class="pb-3 px-2">BM</th>
+                                <th class="pb-3 px-2">RM</th>
+                                <th class="pb-3 px-2 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participant-table-body" class="text-xs">
+                            <!-- Data akan muncul di sini -->
+                            <tr id="empty-row">
+                                <td colspan="8" class="py-10 text-center text-gray-500 italic">Belum ada data peserta. Silakan input di form sebelah kiri.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary / Footer Table -->
+                <div class="mt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 border-t border-gray-700 pt-4">
+                    <p>Menampilkan <span id="count-row" class="text-white font-bold">0</span> peserta aktif</p>
+                    <div class="flex items-center mt-2 md:mt-0">
+                        <span class="mr-2 italic text-xs">Atur Batas Target untuk %:</span>
+                        <input type="number" id="target-count" value="100" onchange="updateKPI()" class="w-16 p-1 text-center rounded border-none text-white text-xs">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Overlay -->
+    <div id="toast" class="fixed bottom-10 right-10 bg-white text-black px-6 py-3 rounded-lg font-bold shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        Data Berhasil Diperbarui!
+    </div>
+
+    <script>
+        let participants = [];
+        const targetElement = document.getElementById('target-count');
+
+        // Initialize Clock
+        function updateTime() {
+            document.getElementById('last-update').innerText = new Date().toLocaleTimeString('id-ID', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }) + " - " + new Date().toLocaleDateString('id-ID');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function addParticipant() {
+            const username = document.getElementById('p-username').value;
+            const nama = document.getElementById('p-nama').value;
+            const ket = document.getElementById('p-ket').value;
+            const mentor = document.getElementById('p-mentor').value;
+            const bm = document.getElementById('p-bm').value;
+            const rm = document.getElementById('p-rm').value;
+
+            if (!username || !nama) {
+                showToast("Username dan Nama wajib diisi!", true);
+                return;
+            }
+
+            const newParticipant = {
+                id: Date.now(),
+                username,
+                nama,
+                ket,
+                mentor,
+                bm,
+                rm
+            };
+
+            participants.push(newParticipant);
+            renderTable();
+            updateKPI();
+            
+            // Reset Form
+            document.getElementById('participant-form').reset();
+            showToast("Peserta berhasil ditambahkan!");
+        }
+
+        function deleteParticipant(id) {
+            participants = participants.filter(p => p.id !== id);
+            renderTable();
+            updateKPI();
+            showToast("Peserta dihapus");
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('participant-table-body');
+            const countDisplay = document.getElementById('count-row');
+            
+            if (participants.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="empty-row">
+                        <td colspan="8" class="py-10 text-center text-gray-500 italic">Belum ada data peserta. Silakan input di form sebelah kiri.</td>
+                    </tr>
+                `;
+                countDisplay.innerText = "0";
+                return;
+            }
+
+            tbody.innerHTML = "";
+            participants.forEach((p, index) => {
+                const row = `
+                    <tr class="border-b border-gray-700/50 hover:bg-gray-700/30 transition group">
+                        <td class="py-3 px-2 text-gray-500 font-mono">${index + 1}</td>
+                        <td class="py-3 px-2 font-medium text-white">${p.username}</td>
+                        <td class="py-3 px-2 text-gray-300">${p.nama}</td>
+                        <td class="py-3 px-2 text-gray-400">${p.ket || '-'}</td>
+                        <td class="py-3 px-2 text-gray-400">${p.mentor || '-'}</td>
+                        <td class="py-3 px-2 text-gray-400">${p.bm || '-'}</td>
+                        <td class="py-3 px-2 text-gray-400">${p.rm || '-'}</td>
+                        <td class="py-3 px-2 text-center">
+                            <button onclick="deleteParticipant(${p.id})" class="text-gray-600 hover:text-red-500 transition px-2">
+                                ✕
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+
+            countDisplay.innerText = participants.length;
+        }
+
+        function updateKPI() {
+            const total = participants.length;
+            const target = parseInt(targetElement.value) || 1;
+            
+            // Hitung Rate
+            const rate = ((total / target) * 100).toFixed(1);
+            const clampedRate = rate > 100 ? 100 : rate;
+
+            // Update UI
+            document.getElementById('display-peserta').innerText = total;
+            document.getElementById('display-rate').innerText = rate + "%";
+            document.getElementById('progress-rate').style.width = clampedRate + "%";
+        }
+
+        function clearTable() {
+            if(confirm("Hapus semua data peserta?")) {
+                participants = [];
+                renderTable();
+                updateKPI();
+                showToast("Semua data dibersihkan");
+            }
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.backgroundColor = isError ? "#f87171" : "white";
+            toast.style.color = isError ? "white" : "black";
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
